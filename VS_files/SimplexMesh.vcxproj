@@ -66,6 +66,14 @@
     <ClCompile Include="..\src\SimplexIterators.cpp" />
     <ClCompile Include="..\src\SimplicialComplex.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\headers\Handle.h" />
+    <ClInclude Include="..\headers\IncidenceMatrix.h" />
+    <ClInclude Include="..\headers\SimplexHandles.h" />
+    <ClInclude Include="..\headers\SimplexIterators.h" />
+    <ClInclude Include="..\headers\SimplexProperty.h" />
+    <ClInclude Include="..\headers\SimplicialComplex.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

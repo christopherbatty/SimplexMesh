@@ -129,37 +129,20 @@ namespace SimplexMesh {
       if(v0.idx() == v1.idx())
          return EdgeHandle::invalid();
 
-      /*
+      
       if(m_safetyChecks) {
 
-         //duplication check
-         if(m_allowDuplicates == None) {
-            //check if any edge joining these vertices already exists
-            for(unsigned int i = 0; i < m_VE.getNumEntriesInRow(v0.idx()); ++i) {
-               int edgeID = m_VE.getColByIndex(v0.idx(), i);
-               for(unsigned int j = 0; j < m_EV.getNumEntriesInRow(edgeID); ++j){
-                  int vertID = m_EV.getColByIndex(edgeID, j);
-                  if(vertID == v1.idx()) //this creates a duplicate edge
-                     return EdgeHandle::invalid();
-               }
+         //full duplication: check if any edge joining these vertices already exists
+         for(unsigned int i = 0; i < m_VE.getNumEntriesInRow(v0.idx()); ++i) {
+            int edgeID = m_VE.getColByIndex(v0.idx(), i);
+            for(unsigned int j = 0; j < m_EV.getNumEntriesInRow(edgeID); ++j){
+               int vertID = m_EV.getColByIndex(edgeID, j);
+               if(vertID == v1.idx()) //this creates a duplicate edge
+                  return EdgeHandle::invalid();
             }
          }
-         else if(m_allowDuplicates == Relaxed) {
-            //check if an identical edge (these vertices and the same direction) already exists
-            for(unsigned int i = 0; i < m_VE.getNumEntriesInRow(v0.idx()); ++i) {
-               int edgeID = m_VE.getColByIndex(v0.idx(), i);
-               int v0Sign = m_VE.getValueByIndex(v0.idx(), i);
-               if(v0Sign == 1) continue; //don't bother, if the current edge goes in the opposite direction
-               for(unsigned int j = 0; j < m_EV.getNumEntriesInRow(edgeID); ++j){
-                  int vertID = m_EV.getColByIndex(edgeID, j);
-                  assert(vertID == v0.idx() || m_EV.getValueByIndex(edgeID, j) == 1); //all edges are directed
-                  if(vertID == v1.idx()) //this creates a duplicate edge
-                     return EdgeHandle::invalid();
-               }
-            }        
-         }
       }
-      */
+      
 
       //get the next free edge index, or add space
       int new_index;
@@ -211,66 +194,36 @@ namespace SimplexMesh {
       if(e0 == e1 || e1 == e2 || e0 == e2) //prevent degenerate faces
          return FaceHandle::invalid();
 
-      /*
+      
       if(m_safetyChecks) {
 
-         if(m_allowDuplicates == None) {
-            //check if a face matching this description exists (including partial matches and reversed orientations)
-            for(unsigned int i = 0; i < m_EF.getNumEntriesInRow(e0.idx()); ++i) {
-               int faceInd = m_EF.getColByIndex(e0.idx(), i);
-               for(unsigned int j = 0; j < m_FE.getNumEntriesInRow(faceInd); ++j) {
-                  int edgeInd = m_FE.getColByIndex(faceInd, j);
-                  if(edgeInd == e1.idx() || edgeInd == e2.idx())
-                     return FaceHandle::invalid();
-               }
-            }
-            for(unsigned int i = 0; i < m_EF.getNumEntriesInRow(e1.idx()); ++i) {
-               int faceInd = m_EF.getColByIndex(e1.idx(), i);
-               for(unsigned int j = 0; j < m_FE.getNumEntriesInRow(faceInd); ++j) {
-                  int edgeInd = m_FE.getColByIndex(faceInd, j);
-                  if(edgeInd == e0.idx() || edgeInd == e2.idx())
-                     return FaceHandle::invalid();
-               }
-            }
-            for(unsigned int i = 0; i < m_EF.getNumEntriesInRow(e2.idx()); ++i) {
-               int faceInd = m_EF.getColByIndex(e2.idx(), i);
-               for(unsigned int j = 0; j < m_FE.getNumEntriesInRow(faceInd); ++j) {
-                  int edgeInd = m_FE.getColByIndex(faceInd, j);
-                  if(edgeInd == e0.idx() || edgeInd == e1.idx())
-                     return FaceHandle::invalid();
-               }
+         //check if a duplicate face already exists (including partial matches and reversed orientations)
+         for(unsigned int i = 0; i < m_EF.getNumEntriesInRow(e0.idx()); ++i) {
+            int faceInd = m_EF.getColByIndex(e0.idx(), i);
+            for(unsigned int j = 0; j < m_FE.getNumEntriesInRow(faceInd); ++j) {
+               int edgeInd = m_FE.getColByIndex(faceInd, j);
+               if(edgeInd == e1.idx() || edgeInd == e2.idx())
+                  return FaceHandle::invalid();
             }
          }
-         else if(m_allowDuplicates == Relaxed) {
-            //Check for a duplicate face with identical orientation and sub-simplices
-            for(unsigned int i = 0; i < m_EF.getNumEntriesInRow(e0.idx()); ++i) {
-               int faceInd = m_EF.getColByIndex(e0.idx(), i);
-               int sign0 = m_EF.getValueByIndex(e0.idx(), i);
-               
-               std::vector<int> otherTwoEdges;
-               for(unsigned int j = 0; j < m_FE.getNumEntriesInRow(faceInd); ++j) {
-                  if((int)m_FE.getColByIndex(faceInd, j) != e0.idx())
-                     otherTwoEdges.push_back(j);
-               }
-
-               int pe1 = m_FE.getColByIndex(faceInd, otherTwoEdges[0]);
-               int pe2 = m_FE.getColByIndex(faceInd, otherTwoEdges[1]);
-               if(e1.idx() == pe1 && e2.idx() == pe2) {
-                  //now check orientation
-                  VertexHandle e0endVert = sign0 == 1?toVertex(e0) : fromVertex(e0);
-                  if(fromVertex(EdgeHandle(pe1)) == e0endVert || toVertex(EdgeHandle(pe1)) == e0endVert)
-                     return FaceHandle::invalid();
-               }
-               else if(e1.idx() == pe2 && e2.idx() == pe1) {
-                  //now check orientation
-                  VertexHandle e0endVert = sign0 == 1?toVertex(e0) : fromVertex(e0);
-                  if(fromVertex(EdgeHandle(pe2)) == e0endVert || toVertex(EdgeHandle(pe2)) == e0endVert)
-                     return FaceHandle::invalid();
-               }
+         for(unsigned int i = 0; i < m_EF.getNumEntriesInRow(e1.idx()); ++i) {
+            int faceInd = m_EF.getColByIndex(e1.idx(), i);
+            for(unsigned int j = 0; j < m_FE.getNumEntriesInRow(faceInd); ++j) {
+               int edgeInd = m_FE.getColByIndex(faceInd, j);
+               if(edgeInd == e0.idx() || edgeInd == e2.idx())
+                  return FaceHandle::invalid();
             }
          }
-
-         //check that the composing edges share the same 3 vertices and use them twice each
+         for(unsigned int i = 0; i < m_EF.getNumEntriesInRow(e2.idx()); ++i) {
+            int faceInd = m_EF.getColByIndex(e2.idx(), i);
+            for(unsigned int j = 0; j < m_FE.getNumEntriesInRow(faceInd); ++j) {
+               int edgeInd = m_FE.getColByIndex(faceInd, j);
+               if(edgeInd == e0.idx() || edgeInd == e1.idx())
+                  return FaceHandle::invalid();
+            }
+         }
+        
+         //check that the composing edges actually share the same 3 vertices, and use them twice each
          std::map<int,int> vertList;
          vertList[fromVertex(e0).idx()]++;
          vertList[toVertex(e0).idx()]++;
@@ -286,7 +239,6 @@ namespace SimplexMesh {
             }
          }
       }
-      */
 
       //get the next free face or add one
       int new_index;
@@ -369,53 +321,24 @@ namespace SimplexMesh {
          return TetHandle::invalid();
 
       if(m_safetyChecks) {
-         //TODO Check for this tet already existing
-         if(m_allowDuplicates == None) {
-            //check for tets that share 2 (or possibly more) of the same faces
-            //[technically perhaps sharing 3 faces should be the no-no]
-            FaceHandle faceList[4] = {f0, f1, f2, f3};
-            for(int i = 0; i < 4; ++i) {
-               FaceHandle curF = faceList[i];
-               for(unsigned int j = 0; j < m_FT.getNumEntriesInRow(curF.idx()); ++j) {
-                  unsigned tetId = m_FT.getColByIndex(curF.idx(), j);
-                  for(unsigned int k = 0; k < m_TF.getNumEntriesInRow(tetId); ++k) {
-                     int otherF = m_TF.getColByIndex(tetId, k);
-                     if(otherF == f0.idx() || otherF == f1.idx() || otherF == f2.idx() || otherF == f3.idx())
-                        return TetHandle::invalid();
-                  }
-               }
-            }
-         }
-         else if(m_allowDuplicates == Relaxed) {
-            //TODO check for exactly identical tets (same faces, same inside/out orientation)
-            //check for tets that share 2 (or possibly more) of the same faces
-            //technically perhaps sharing 3 faces should be the no-no
-            std::set<int> faceSet,faceSet2;
-            faceSet.insert(f0.idx());faceSet.insert(f1.idx());faceSet.insert(f2.idx());faceSet.insert(f3.idx());
-            
-            for(unsigned int j = 0; j < m_FT.getNumEntriesInRow(f0.idx()); ++j) {
-               unsigned tetId = m_FT.getColByIndex(f0.idx(), j);
-               bool allMatch = true;
-               bool signMatch = false;
-               for(unsigned int k = 0; k < m_TF.getNumEntriesInRow(tetId) && allMatch; ++k) {
-                  int otherF = m_TF.getColByIndex(tetId, k);
-                  if(otherF != f0.idx() && otherF != f1.idx() && otherF != f2.idx() && otherF != f3.idx())
-                     allMatch = false;
-                  if(otherF == f0.idx()) {
-                     int signVal = m_TF.getValueByIndex(tetId,k);
-                     if(signVal == -1 && !flip_face0 || signVal == 1 && flip_face0)
-                        signMatch = true;
-                  }
-               }
-
-               if(allMatch && signMatch)
-                  return TetHandle::invalid();
-               
-            }
          
+         //check for tets that share 2 (or possibly more) of the same faces, since this isn't really valid when embedded in 3D.
+         //[technically perhaps sharing 3 faces should be the no-no]
+         FaceHandle faceList[4] = {f0, f1, f2, f3};
+         for(int i = 0; i < 4; ++i) {
+            FaceHandle curF = faceList[i];
+            for(unsigned int j = 0; j < m_FT.getNumEntriesInRow(curF.idx()); ++j) {
+               unsigned tetId = m_FT.getColByIndex(curF.idx(), j);
+               for(unsigned int k = 0; k < m_TF.getNumEntriesInRow(tetId); ++k) {
+                  int otherF = m_TF.getColByIndex(tetId, k);
+                  if(otherF == f0.idx() || otherF == f1.idx() || otherF == f2.idx() || otherF == f3.idx())
+                     return TetHandle::invalid();
+               }
+            }
          }
+         
 
-         //TODO Check that these faces share the same 6 edges, twice each
+         //Check that these faces share the same 6 edges, twice each
          FaceHandle faces[4] = {f0, f1, f2, f3};
          std::map<int,int> edgeList;
          for(int i = 0; i < 4; ++i) {
@@ -536,7 +459,7 @@ namespace SimplexMesh {
       FaceHandle f2 = getFace(e0,e1,e3);
       if(!f2.isValid()) f2 = addFace(e0,e1,e3); 
       FaceHandle f3 = getFace(e1,e2,e5);
-      if(!f3.isValid()) f0 = addFace(e1,e2,e5);
+      if(!f3.isValid()) f3 = addFace(e1,e2,e5);
 
       return addTet(f0,f1,f2,f3);
    }

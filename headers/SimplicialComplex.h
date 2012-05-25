@@ -10,7 +10,7 @@ namespace SimplexMesh {
 
    class SimplexPropertyBase;
 
-   //Determine what level of duplication is allowed
+   //Determine what level of duplication is allowed //TODO Disallow all duplication.
    enum DuplicateSimplexMode {
       Arbitrary, //Any kind of duplicate allowed
       Relaxed,   //Allow simplices that differ in orientation or which share some sub-simplices (e.g. two faces that have 2 of the same 3 edges)

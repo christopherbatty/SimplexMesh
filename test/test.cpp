@@ -6,16 +6,31 @@ using namespace SimplexMesh;
 
 bool test_constructTetAndIterateSimplices();
 bool test_constructSimplicesFromVerts();
+bool test_edgeDuplication();
+bool test_faceDuplication();
+bool test_faceCreationValid();
+bool test_tetDuplication();
+
+typedef bool (*test_func)();
+
+const int test_count = 6;
+test_func tests[] = {test_constructSimplicesFromVerts,
+                     test_constructTetAndIterateSimplices,
+                     test_edgeDuplication,
+                     test_faceDuplication,
+                     test_faceCreationValid,
+                     test_tetDuplication};
+
 
 void main() {
    int success_count = 0;
-   if(test_constructTetAndIterateSimplices())
-      ++success_count;
+   for(int i = 0; i < test_count; ++i) {
+      if( (*tests[i])() )
+         ++success_count;
+   }
 
-   if(test_constructSimplicesFromVerts())
-      ++success_count;
-
-   std::cout << "Tests passed: " << success_count << std::endl;
+   std::cout << "Tests passed: " << success_count << " of " << test_count << std::endl;
+   
 }
 
 bool test_constructTetAndIterateSimplices() {
@@ -126,4 +141,74 @@ bool test_constructSimplicesFromVerts() {
    TetHandle th = mesh.addTet(v0, v1, v2, v3);
 
    return true;
+}
+
+bool test_edgeDuplication() {
+   SimplicialComplex mesh;
+   
+   mesh.setSafeMode(true);
+   
+   VertexHandle v0 = mesh.addVertex();
+   VertexHandle v1 = mesh.addVertex();
+   VertexHandle v2 = mesh.addVertex();
+  
+   EdgeHandle edge0 = mesh.addEdge(v0, v1);
+   EdgeHandle edge1 = mesh.addEdge(v0, v1);
+   
+   return edge0.isValid() && !edge1.isValid();
+}
+
+bool test_faceDuplication() {
+   SimplicialComplex mesh;
+
+   mesh.setSafeMode(true);
+
+   VertexHandle v0 = mesh.addVertex();
+   VertexHandle v1 = mesh.addVertex();
+   VertexHandle v2 = mesh.addVertex();
+
+   FaceHandle face0 = mesh.addFace(v0, v1, v2);
+   FaceHandle face1 = mesh.addFace(v0, v1, v2);
+   FaceHandle face2 = mesh.addFace(v0, v2, v1);
+
+   return face0.isValid() && !face1.isValid() && !face1.isValid();
+}
+
+
+bool test_faceCreationValid() {
+   SimplicialComplex mesh;
+
+   mesh.setSafeMode(true);
+
+   VertexHandle v0 = mesh.addVertex();
+   VertexHandle v1 = mesh.addVertex();
+   VertexHandle v2 = mesh.addVertex();
+   VertexHandle v3 = mesh.addVertex();
+
+   EdgeHandle e0 = mesh.addEdge(v0, v1);
+   EdgeHandle e1 = mesh.addEdge(v1, v2);
+   EdgeHandle e2 = mesh.addEdge(v0, v2);
+   EdgeHandle e3 = mesh.addEdge(v0, v3);
+
+   FaceHandle face0 = mesh.addFace(e0, e1, e2); //good face
+   FaceHandle face1 = mesh.addFace(e0, e1, e3); //bad face
+
+   return face0.isValid() && !face1.isValid();
+}
+
+bool test_tetDuplication() {
+   SimplicialComplex mesh;
+
+   mesh.setSafeMode(true);
+
+   VertexHandle v0 = mesh.addVertex();
+   VertexHandle v1 = mesh.addVertex();
+   VertexHandle v2 = mesh.addVertex();
+   VertexHandle v3 = mesh.addVertex();
+
+   TetHandle tet0 = mesh.addTet(v0, v1, v2, v3);
+   TetHandle tet1 = mesh.addTet(v0, v1, v2, v3);
+   TetHandle tet2 = mesh.addTet(v0, v1, v3, v2);
+   
+   return tet0.isValid() && !tet1.isValid() && !tet2.isValid();
 }
