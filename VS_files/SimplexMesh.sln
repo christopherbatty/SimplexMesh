@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimplexMesh", "SimplexMesh.vcxproj", "{B5F86F74-CB6D-424B-99DC-3A34EC8B374F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcxproj", "{4DF8B7AC-56CE-4F35-88C6-FC0ACC739EE0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B5F86F74-CB6D-424B-99DC-3A34EC8B374F} = {B5F86F74-CB6D-424B-99DC-3A34EC8B374F}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5F86F74-CB6D-424B-99DC-3A34EC8B374F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B5F86F74-CB6D-424B-99DC-3A34EC8B374F}.Debug|Win32.Build.0 = Debug|Win32
+		{B5F86F74-CB6D-424B-99DC-3A34EC8B374F}.Release|Win32.ActiveCfg = Release|Win32
+		{B5F86F74-CB6D-424B-99DC-3A34EC8B374F}.Release|Win32.Build.0 = Release|Win32
+		{4DF8B7AC-56CE-4F35-88C6-FC0ACC739EE0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4DF8B7AC-56CE-4F35-88C6-FC0ACC739EE0}.Debug|Win32.Build.0 = Debug|Win32
+		{4DF8B7AC-56CE-4F35-88C6-FC0ACC739EE0}.Release|Win32.ActiveCfg = Release|Win32
+		{4DF8B7AC-56CE-4F35-88C6-FC0ACC739EE0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
