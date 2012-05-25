@@ -25,9 +25,9 @@ namespace SimplexMesh {
 
       SimplicialComplex();
 
-      //possibly do some additional safety checks when adding simplices
+
+      //Whether to perform potentially expensive safety checks when manipulating the mesh.
       void setSafeMode(bool safe) { m_safetyChecks = safe; }
-      void setDuplicateMode(DuplicateSimplexMode duplication) { m_allowDuplicates = duplication; }
 
       int numVerts() const;
       int numEdges() const;
@@ -230,7 +230,6 @@ namespace SimplexMesh {
 
       //Option flags
       bool m_safetyChecks;
-      DuplicateSimplexMode m_allowDuplicates;
 
    };
 
