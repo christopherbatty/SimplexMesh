@@ -64,6 +64,7 @@ namespace SimplexMesh {
          return 0;
       return m_TF.get(th.idx(), fh.idx());
    }
+
    int SimplicialComplex::getRelativeOrientation(const FaceHandle& fh, const EdgeHandle& eh) const {
       if(fh.idx() < 0 || fh.idx() >= (int)m_FE.getNumRows() || eh.idx() < 0 || eh.idx() >= (int)m_FE.getNumCols())
          return 0;
@@ -188,6 +189,8 @@ namespace SimplexMesh {
       const EdgeHandle& e1, 
       const EdgeHandle& e2)
    {
+
+      //cheap safety checks
       if(!edgeExists(e0) || !edgeExists(e1) || !edgeExists(e2)) //make sure all edges exists
          return FaceHandle::invalid();
       

@@ -10,16 +10,18 @@ bool test_edgeDuplication();
 bool test_faceDuplication();
 bool test_faceCreationValid();
 bool test_tetDuplication();
+bool test_tetCreationValid();
 
 typedef bool (*test_func)();
 
-const int test_count = 6;
+const int test_count = 7;
 test_func tests[] = {test_constructSimplicesFromVerts,
                      test_constructTetAndIterateSimplices,
                      test_edgeDuplication,
                      test_faceDuplication,
                      test_faceCreationValid,
-                     test_tetDuplication};
+                     test_tetDuplication,
+                     test_tetCreationValid};
 
 
 void main() {
@@ -211,4 +213,28 @@ bool test_tetDuplication() {
    TetHandle tet2 = mesh.addTet(v0, v1, v3, v2);
    
    return tet0.isValid() && !tet1.isValid() && !tet2.isValid();
+}
+
+bool test_tetCreationValid() {
+   SimplicialComplex mesh;
+
+   mesh.setSafeMode(true);
+
+   VertexHandle v0 = mesh.addVertex();
+   VertexHandle v1 = mesh.addVertex();
+   VertexHandle v2 = mesh.addVertex();
+   VertexHandle v3 = mesh.addVertex();
+   VertexHandle v4 = mesh.addVertex();
+
+   FaceHandle f0 = mesh.addFace(v0,v1,v2);
+   FaceHandle f1 = mesh.addFace(v0,v2,v3);
+   FaceHandle f2 = mesh.addFace(v0,v1,v3);
+   FaceHandle f3 = mesh.addFace(v1,v2,v3);
+   FaceHandle f4 = mesh.addFace(v0, v2, v4);
+
+   TetHandle t0 = mesh.addTet(f0,f1,f2,f3);
+   TetHandle t1 = mesh.addTet(f0,f1,f2,f4);
+   TetHandle t2 = mesh.addTet(f0,f1,f3,f4);
+
+   return t0.isValid() && !t1.isValid() && !t2.isValid();
 }

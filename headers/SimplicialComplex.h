@@ -10,13 +10,6 @@ namespace SimplexMesh {
 
    class SimplexPropertyBase;
 
-   //Determine what level of duplication is allowed //TODO Disallow all duplication.
-   enum DuplicateSimplexMode {
-      Arbitrary, //Any kind of duplicate allowed
-      Relaxed,   //Allow simplices that differ in orientation or which share some sub-simplices (e.g. two faces that have 2 of the same 3 edges)
-      None       //No duplication at all
-   };
-
    // An object that represents a collection of vertices, edges, faces and tets
    // with associated connectivity information.
    class SimplicialComplex
@@ -25,8 +18,7 @@ namespace SimplexMesh {
 
       SimplicialComplex();
 
-
-      //Whether to perform potentially expensive safety checks when manipulating the mesh.
+      //Whether to perform potentially expensive safety checks (duplicates, validity) when constructing the mesh.
       void setSafeMode(bool safe) { m_safetyChecks = safe; }
 
       int numVerts() const;
@@ -34,7 +26,7 @@ namespace SimplexMesh {
       int numFaces() const;
       int numTets() const;
 
-      //Addition: note that the resulting orientation is dependent on the order of parameters
+      //Addition: note that the resulting orientation is (in most cases) dependent on the order of parameters
       VertexHandle addVertex();
       EdgeHandle addEdge(const VertexHandle& v0, const VertexHandle& v1); //ordered from v0 to v1
       FaceHandle addFace(const EdgeHandle& e0, const EdgeHandle& e1, const EdgeHandle& e2); //in order of given edges
@@ -42,7 +34,7 @@ namespace SimplexMesh {
                        const FaceHandle& f2, const FaceHandle& f3,
                        bool flip_face0 = false);
 
-      //auxiliary addition functions for convenience. These will be slower.
+      //auxiliary addition functions for convenience. These will necessarily be slower.
       FaceHandle addFace(const VertexHandle& v0, const VertexHandle& v1, const VertexHandle& v2);
       TetHandle addTet(const VertexHandle& v0, const VertexHandle& v1, const VertexHandle& v2, const VertexHandle& v3);
 
@@ -52,24 +44,23 @@ namespace SimplexMesh {
       bool deleteFace(const FaceHandle& face, bool recurse);
       bool deleteTet(const TetHandle& tet, bool recurse);
 
-      //existence: check if simplices still exist
+      //Existence: check if simplices still exist
       bool vertexExists(const VertexHandle& vertex) const;
       bool edgeExists(const EdgeHandle& edge) const;
       bool faceExists(const FaceHandle& face) const;
       bool tetExists(const TetHandle& tet) const;
     
-      //Exploit fixed ordering to provide simpler access to sub-elements of a simplex
-      //These are quick
+      //Exploit fixed ordering to provide fast/easy access to sub-elements of a simplex
       VertexHandle getVertex(const EdgeHandle& eh, int index) const;
       EdgeHandle getEdge(const FaceHandle& fh, int index) const;
-      FaceHandle getFace(const TetHandle& th, int index) const; //Is there an important/inherent ordering here? should we uniquify by sorting
+      FaceHandle getFace(const TetHandle& th, int index) const; //Is there an important/inherent ordering here? should we unique-ify by sorting?
 
-      //get functions - grab a simplex by its constitutive simplices - careful, slow!
+      //Get functions - grab a simplex by its constitutive simplices - slow!
       EdgeHandle getEdge(const VertexHandle& v0, const VertexHandle& v1) const;
       FaceHandle getFace(const EdgeHandle& e0, const EdgeHandle& e1, const EdgeHandle& e2) const;
       TetHandle getTet(const FaceHandle& f0, const FaceHandle& f1, const FaceHandle& f2, const FaceHandle& f3) const;
 
-      //determine orientation (+1 or -1)
+      //determine relative orientation of simplices (+1 or -1)
       int getRelativeOrientation(const TetHandle& th, const FaceHandle& fh) const;
       int getRelativeOrientation(const FaceHandle& fh, const EdgeHandle& eh) const;
       int getRelativeOrientation(const EdgeHandle& eh, const VertexHandle& vh) const;
@@ -94,7 +85,6 @@ namespace SimplexMesh {
       bool isIncident(const EdgeHandle& eh, const FaceHandle& fh) const;
       bool isIncident(const FaceHandle& fh, const TetHandle& th) const;
 
-
       //Pairwise relationships / traversal
       //----------------------------------
       //Edge/Vert
@@ -111,7 +101,7 @@ namespace SimplexMesh {
 
       //Simple global traversal functions (terser than iterators, safer/slower when editing meshes)
       //------------------------------------
-      //Verts
+      //Vertices
       VertexHandle nextVertex(const VertexHandle& curVertex) const;
       VertexHandle prevVertex(const VertexHandle& curVertex) const;
       
@@ -127,7 +117,7 @@ namespace SimplexMesh {
       TetHandle nextTet(const TetHandle& curTet) const;
       TetHandle prevTet(const TetHandle& curTet) const;
 
-      //Simple local traversal functions (stateless, terser than iterators, safer/slower when editing meshes)
+      //Simple local traversal functions (stateless, terser than iterators, safer & slower. Useful e.g. when editing meshes)
       //---------------------------------
       //Vertex traversal
       VertexHandle nextVertex(const EdgeHandle&edge, const VertexHandle& curVertex) const;
