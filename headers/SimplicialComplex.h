@@ -240,6 +240,5 @@ namespace SimplexMesh {
 
 #include "SimplexProperty.h"
 #include "SimplexIterators.h"
-#include "SimplexUtil.h"
 
 #endif // SIMPLICIALCOMPLEX_H
