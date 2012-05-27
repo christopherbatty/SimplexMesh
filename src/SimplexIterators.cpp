@@ -4,18 +4,18 @@ namespace SimplexMesh {
 
 //VertexIterator
 
-VertexIterator::VertexIterator(const SimplicialComplex* obj): m_obj(obj), m_idx(-1) {
+VertexIterator::VertexIterator(const SimplicialComplex& obj): m_obj(obj), m_idx(-1) {
    advance();
 }
 
 void VertexIterator::advance() {
    do {
       m_idx++;
-   } while(m_idx < (int)m_obj->numVertexSlots() && !m_obj->m_V[m_idx]);
+   } while(m_idx < (int)m_obj.numVertexSlots() && !m_obj.m_V[m_idx]);
 }
 
 bool VertexIterator::done() const {
-   return m_idx >= (int)m_obj->numVertexSlots();
+   return m_idx >= (int)m_obj.numVertexSlots();
 }
 
 VertexHandle VertexIterator::current() const {
@@ -24,18 +24,18 @@ VertexHandle VertexIterator::current() const {
 
 //EdgeIterator
 
-EdgeIterator::EdgeIterator(const SimplicialComplex* obj): m_obj(obj), m_idx(-1) {
+EdgeIterator::EdgeIterator(const SimplicialComplex& obj): m_obj(obj), m_idx(-1) {
    advance();
 }
 
 void EdgeIterator::advance() {
    do {
       m_idx++;
-   } while(m_idx < (int)m_obj->numEdgeSlots() && m_obj->m_EV.getNumEntriesInRow(m_idx) == 0);
+   } while(m_idx < (int)m_obj.numEdgeSlots() && m_obj.m_EV.getNumEntriesInRow(m_idx) == 0);
 }
 
 bool EdgeIterator::done() const {
-   return m_idx >= (int)m_obj->numEdgeSlots();
+   return m_idx >= (int)m_obj.numEdgeSlots();
 }
 
 EdgeHandle EdgeIterator::current() const {
@@ -44,18 +44,18 @@ EdgeHandle EdgeIterator::current() const {
 
 //FaceIterator
 
-FaceIterator::FaceIterator(const SimplicialComplex* obj): m_obj(obj), m_idx(-1) {
+FaceIterator::FaceIterator(const SimplicialComplex& obj): m_obj(obj), m_idx(-1) {
    advance();
 }
 
 void FaceIterator::advance() {
    do {
       m_idx++;
-   } while(m_idx < (int)m_obj->numFaceSlots() && m_obj->m_FE.getNumEntriesInRow(m_idx) == 0);
+   } while(m_idx < (int)m_obj.numFaceSlots() && m_obj.m_FE.getNumEntriesInRow(m_idx) == 0);
 }
 
 bool FaceIterator::done() const {
-   return m_idx >= (int)m_obj->numFaceSlots();
+   return m_idx >= (int)m_obj.numFaceSlots();
 }
 
 FaceHandle FaceIterator::current() const {
@@ -65,18 +65,18 @@ FaceHandle FaceIterator::current() const {
 
 //TetIterator
 
-TetIterator::TetIterator(const SimplicialComplex* obj): m_obj(obj), m_idx(-1) {
+TetIterator::TetIterator(const SimplicialComplex& obj): m_obj(obj), m_idx(-1) {
    advance();
 }
 
 void TetIterator::advance() {
    do {
       m_idx++;
-   } while(m_idx < (int)m_obj->numTetSlots() && m_obj->m_TF.getNumEntriesInRow(m_idx) == 0);
+   } while(m_idx < (int)m_obj.numTetSlots() && m_obj.m_TF.getNumEntriesInRow(m_idx) == 0);
 }
 
 bool TetIterator::done() const {
-   return m_idx >= (int)m_obj->numTetSlots();
+   return m_idx >= (int)m_obj.numTetSlots();
 }
 
 TetHandle TetIterator::current() const {
@@ -89,7 +89,7 @@ TetHandle TetIterator::current() const {
 
 
 //VertexEdgeIterator
-VertexEdgeIterator::VertexEdgeIterator(const SimplicialComplex* obj, const VertexHandle& vh): m_obj(obj), m_idx(0), m_vh(vh) {
+VertexEdgeIterator::VertexEdgeIterator(const SimplicialComplex& obj, const VertexHandle& vh): m_obj(obj), m_idx(0), m_vh(vh) {
 }
 
 void VertexEdgeIterator::advance() {
@@ -97,16 +97,16 @@ void VertexEdgeIterator::advance() {
 }
 
 bool VertexEdgeIterator::done() const {
-   return m_idx >= (int)m_obj->vertexIncidentEdgeCount(m_vh);
+   return m_idx >= (int)m_obj.vertexIncidentEdgeCount(m_vh);
 }
 
 EdgeHandle VertexEdgeIterator::current() const {
-   return m_idx >= (int)m_obj->vertexIncidentEdgeCount(m_vh) ?
-      EdgeHandle::invalid() : EdgeHandle(m_obj->m_VE.getColByIndex(m_vh.idx(), m_idx));
+   return m_idx >= (int)m_obj.vertexIncidentEdgeCount(m_vh) ?
+      EdgeHandle::invalid() : EdgeHandle(m_obj.m_VE.getColByIndex(m_vh.idx(), m_idx));
 }
 
 //EdgeVertexIterator
-EdgeVertexIterator::EdgeVertexIterator(const SimplicialComplex* obj, const EdgeHandle& eh, bool ordered): m_obj(obj), m_idx(0), m_eh(eh), m_ordered(ordered) {
+EdgeVertexIterator::EdgeVertexIterator(const SimplicialComplex& obj, const EdgeHandle& eh, bool ordered): m_obj(obj), m_idx(0), m_eh(eh), m_ordered(ordered) {
 }
 
 void EdgeVertexIterator::advance() {
@@ -120,20 +120,20 @@ bool EdgeVertexIterator::done() const {
 VertexHandle EdgeVertexIterator::current() const {
    if(m_ordered) {
       if(m_idx == 0)
-         return m_obj->fromVertex(m_eh);
+         return m_obj.fromVertex(m_eh);
       else if(m_idx == 1)
-         return m_obj->toVertex(m_eh);
+         return m_obj.toVertex(m_eh);
       else return VertexHandle::invalid();
    }
    else {
       return m_idx >= 2 ?
-         VertexHandle::invalid() : VertexHandle(m_obj->m_EV.getColByIndex(m_eh.idx(), m_idx));
+         VertexHandle::invalid() : VertexHandle(m_obj.m_EV.getColByIndex(m_eh.idx(), m_idx));
    }
 }
 
 
 //EdgeFaceIterator
-EdgeFaceIterator::EdgeFaceIterator(const SimplicialComplex* obj, const EdgeHandle& eh): m_obj(obj), m_idx(0), m_eh(eh) {
+EdgeFaceIterator::EdgeFaceIterator(const SimplicialComplex& obj, const EdgeHandle& eh): m_obj(obj), m_idx(0), m_eh(eh) {
 }
 
 void EdgeFaceIterator::advance() {
@@ -141,19 +141,19 @@ void EdgeFaceIterator::advance() {
 }
 
 bool EdgeFaceIterator::done() const {
-   return m_idx >= (int)m_obj->edgeIncidentFaceCount(m_eh);
+   return m_idx >= (int)m_obj.edgeIncidentFaceCount(m_eh);
 }
 
 FaceHandle EdgeFaceIterator::current() const {
-   return m_idx >= (int)m_obj->edgeIncidentFaceCount(m_eh) ?
-      FaceHandle::invalid() : FaceHandle(m_obj->m_EF.getColByIndex(m_eh.idx(), m_idx));
+   return m_idx >= (int)m_obj.edgeIncidentFaceCount(m_eh) ?
+      FaceHandle::invalid() : FaceHandle(m_obj.m_EF.getColByIndex(m_eh.idx(), m_idx));
 }
 
 //FaceEdgeIterator
-FaceEdgeIterator::FaceEdgeIterator(const SimplicialComplex* obj, const FaceHandle& fh, bool ordered): m_obj(obj), m_idx(0), m_fh(fh), m_ordered(ordered) {
+FaceEdgeIterator::FaceEdgeIterator(const SimplicialComplex& obj, const FaceHandle& fh, bool ordered): m_obj(obj), m_idx(0), m_fh(fh), m_ordered(ordered) {
    
    if(m_ordered) { //start at an arbitrary edge
-      m_cur = EdgeHandle(m_obj->m_FE.getColByIndex(m_fh.idx(), m_idx));
+      m_cur = EdgeHandle(m_obj.m_FE.getColByIndex(m_fh.idx(), m_idx));
    }
 
 }
@@ -161,7 +161,7 @@ FaceEdgeIterator::FaceEdgeIterator(const SimplicialComplex* obj, const FaceHandl
 void FaceEdgeIterator::advance() {
    m_idx++;
    if(m_ordered)
-      m_cur = m_obj->nextEdge(m_fh, m_cur);
+      m_cur = m_obj.nextEdge(m_fh, m_cur);
 }
 
 bool FaceEdgeIterator::done() const {
@@ -173,13 +173,13 @@ EdgeHandle FaceEdgeIterator::current() const {
       return m_idx >= 3? EdgeHandle::invalid() : m_cur;
    }
    else {
-      return m_idx >= 3 ? EdgeHandle::invalid() : EdgeHandle(m_obj->m_FE.getColByIndex(m_fh.idx(), m_idx));
+      return m_idx >= 3 ? EdgeHandle::invalid() : EdgeHandle(m_obj.m_FE.getColByIndex(m_fh.idx(), m_idx));
    }
 }
 
 
 //FaceTetIterator
-FaceTetIterator::FaceTetIterator(const SimplicialComplex* obj, const FaceHandle& fh): m_obj(obj), m_idx(0), m_fh(fh) {
+FaceTetIterator::FaceTetIterator(const SimplicialComplex& obj, const FaceHandle& fh): m_obj(obj), m_idx(0), m_fh(fh) {
 }
 
 void FaceTetIterator::advance() {
@@ -187,17 +187,17 @@ void FaceTetIterator::advance() {
 }
 
 bool FaceTetIterator::done() const {
-   return m_idx >= (int)m_obj->m_FT.getNumEntriesInRow(m_fh.idx());
+   return m_idx >= (int)m_obj.m_FT.getNumEntriesInRow(m_fh.idx());
 }
 
 TetHandle FaceTetIterator::current() const {
-   return m_idx >= (int)m_obj->m_FT.getNumEntriesInRow(m_fh.idx()) ?
+   return m_idx >= (int)m_obj.m_FT.getNumEntriesInRow(m_fh.idx()) ?
       TetHandle::invalid():
-   TetHandle(m_obj->m_FT.getColByIndex(m_fh.idx(), m_idx));
+   TetHandle(m_obj.m_FT.getColByIndex(m_fh.idx(), m_idx));
 }
 
 //TetFaceIterator
-TetFaceIterator::TetFaceIterator(const SimplicialComplex* obj, const TetHandle& th): m_obj(obj), m_idx(0), m_th(th) {
+TetFaceIterator::TetFaceIterator(const SimplicialComplex& obj, const TetHandle& th): m_obj(obj), m_idx(0), m_th(th) {
 }
 
 void TetFaceIterator::advance() {
@@ -211,11 +211,11 @@ bool TetFaceIterator::done() const {
 FaceHandle TetFaceIterator::current() const {
    return m_idx >= 4 ?
       FaceHandle::invalid():
-   FaceHandle(m_obj->m_TF.getColByIndex(m_th.idx(), m_idx));
+   FaceHandle(m_obj.m_TF.getColByIndex(m_th.idx(), m_idx));
 }
 
 //VertexFaceIterator
-VertexFaceIterator::VertexFaceIterator(const SimplicialComplex* obj, const VertexHandle& vh) : m_obj(obj) {
+VertexFaceIterator::VertexFaceIterator(const SimplicialComplex& obj, const VertexHandle& vh) : m_obj(obj) {
   
    //build the set of (unique) faces
    for(VertexEdgeIterator veit(m_obj, vh); !veit.done(); veit.advance())
@@ -245,7 +245,7 @@ FaceHandle VertexFaceIterator::current() const {
 
 
 //FaceVertexIterator
-FaceVertexIterator::FaceVertexIterator(const SimplicialComplex* obj, const FaceHandle& fh, bool ordered) : 
+FaceVertexIterator::FaceVertexIterator(const SimplicialComplex& obj, const FaceHandle& fh, bool ordered) : 
    m_obj(obj), m_feit(obj, fh, ordered), m_fh(fh) 
 {
 
@@ -261,12 +261,12 @@ bool FaceVertexIterator::done() const {
 
 VertexHandle FaceVertexIterator::current() const {
    EdgeHandle curEdge = m_feit.current();
-   int direction = m_obj->getRelativeOrientation(m_fh, curEdge);
-   return direction > 0? m_obj->fromVertex(curEdge) : m_obj->toVertex(curEdge);
+   int direction = m_obj.getRelativeOrientation(m_fh, curEdge);
+   return direction > 0? m_obj.fromVertex(curEdge) : m_obj.toVertex(curEdge);
 }
 
 //VertexTetIterator
-VertexTetIterator::VertexTetIterator(const SimplicialComplex* obj, const VertexHandle& vh) : m_obj(obj) {
+VertexTetIterator::VertexTetIterator(const SimplicialComplex& obj, const VertexHandle& vh) : m_obj(obj) {
 
    //build the set of (unique) tets
    for(VertexEdgeIterator veit(m_obj, vh); !veit.done(); veit.advance())
@@ -297,7 +297,7 @@ TetHandle VertexTetIterator::current() const {
 
 
 //TetVertexIterator
-TetVertexIterator::TetVertexIterator(const SimplicialComplex* obj, const TetHandle& th) : 
+TetVertexIterator::TetVertexIterator(const SimplicialComplex& obj, const TetHandle& th) : 
 m_obj(obj)
 {
    //build the set of (unique) vertices
@@ -329,7 +329,7 @@ VertexHandle TetVertexIterator::current() const {
 
 
 //EdgeTetIterator
-EdgeTetIterator::EdgeTetIterator(const SimplicialComplex* obj, const EdgeHandle& eh) : m_obj(obj) {
+EdgeTetIterator::EdgeTetIterator(const SimplicialComplex& obj, const EdgeHandle& eh) : m_obj(obj) {
 
    //build the set of (unique) tets
    for(EdgeFaceIterator efit(m_obj, eh); !efit.done(); efit.advance())
@@ -359,7 +359,7 @@ TetHandle EdgeTetIterator::current() const {
 
 
 //TetEdgeIterator
-TetEdgeIterator::TetEdgeIterator(const SimplicialComplex* obj, const TetHandle& th) : 
+TetEdgeIterator::TetEdgeIterator(const SimplicialComplex& obj, const TetHandle& th) : 
 m_obj(obj)
 {
    //build the set of (unique) vertices

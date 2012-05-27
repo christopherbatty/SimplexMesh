@@ -63,13 +63,13 @@ bool test_constructTetAndIterateSimplices() {
    TetHandle t0 = mesh.addTet(f0,f1,f2,f3);
 
    //Assign data.
-   VertexProperty<int> vertexID(&mesh);
+   VertexProperty<int> vertexID(mesh);
    vertexID[v0] = 0;
    vertexID[v1] = 1;
    vertexID[v2] = 2;
    vertexID[v3] = 3;
 
-   EdgeProperty<int> edgeID(&mesh);
+   EdgeProperty<int> edgeID(mesh);
    edgeID[e0] = 0;
    edgeID[e1] = 1;
    edgeID[e2] = 2;
@@ -77,38 +77,38 @@ bool test_constructTetAndIterateSimplices() {
    edgeID[e4] = 4;
    edgeID[e5] = 5;
 
-   FaceProperty<int> faceID(&mesh);
+   FaceProperty<int> faceID(mesh);
    faceID[f0] = 0;
    faceID[f1] = 1;
    faceID[f2] = 2;
    faceID[f3] = 3;
 
-   TetProperty<int> tetID(&mesh);
+   TetProperty<int> tetID(mesh);
    tetID[t0] = 0;
    
    int i = 0;
-   for(VertexIterator it(&mesh); !it.done(); it.advance()) {
+   for(VertexIterator it(mesh); !it.done(); it.advance()) {
       VertexHandle cur = it.current();
       if(vertexID[cur] != i) ++failures;
       ++i;
    }
    
    i = 0;
-   for(EdgeIterator it(&mesh); !it.done(); it.advance()) {
+   for(EdgeIterator it(mesh); !it.done(); it.advance()) {
       EdgeHandle cur = it.current();
       if(edgeID[cur] != i) ++failures;
       ++i;
    }
    
    i = 0;
-   for(FaceIterator it(&mesh); !it.done(); it.advance()) {
+   for(FaceIterator it(mesh); !it.done(); it.advance()) {
       FaceHandle cur = it.current();
       if(faceID[cur] != i) ++failures;
       ++i;
    }
    
    i = 0;
-   for(TetIterator it(&mesh); !it.done(); it.advance()) {
+   for(TetIterator it(mesh); !it.done(); it.advance()) {
       TetHandle cur = it.current();
       if(tetID[cur] != i) ++failures;
       ++i;

@@ -223,8 +223,6 @@ namespace SimplexMesh {
 
    };
 
-
-
 } // namespace SimplexMesh
 
 #include "SimplexProperty.h"

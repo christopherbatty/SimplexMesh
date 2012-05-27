@@ -607,7 +607,7 @@ namespace SimplexMesh {
       if(!vertexExists(v0) || !vertexExists(v1))
          return EdgeHandle::invalid();
 
-      for(VertexEdgeIterator veit(this, v0); !veit.done(); veit.advance()) {
+      for(VertexEdgeIterator veit(*this, v0); !veit.done(); veit.advance()) {
          EdgeHandle curEdge = veit.current();
          if(fromVertex(curEdge) == v1 || toVertex(curEdge) == v1)
             return curEdge;
@@ -621,10 +621,10 @@ namespace SimplexMesh {
       if(!edgeExists(e0) || !edgeExists(e1) || !edgeExists(e2)) 
          return FaceHandle::invalid();
 
-      for(EdgeFaceIterator efit(this, e0); !efit.done(); efit.advance()) {
+      for(EdgeFaceIterator efit(*this, e0); !efit.done(); efit.advance()) {
          FaceHandle curFace = efit.current();
          bool foundE1 = false, foundE2 = false;
-         for(FaceEdgeIterator feit(this, curFace, false); !feit.done(); feit.advance()) {
+         for(FaceEdgeIterator feit(*this, curFace, false); !feit.done(); feit.advance()) {
             EdgeHandle curEdge = feit.current();
             if(curEdge == e1) foundE1 = true;
             if(curEdge == e2) foundE2 = true;
@@ -641,10 +641,10 @@ namespace SimplexMesh {
       if(!faceExists(f0) || !faceExists(f1) || !faceExists(f2) || !faceExists(f3)) 
          return TetHandle::invalid();
 
-      for(FaceTetIterator ftit(this, f0); !ftit.done(); ftit.advance()) {
+      for(FaceTetIterator ftit(*this, f0); !ftit.done(); ftit.advance()) {
          TetHandle curTet = ftit.current();
          bool foundf1 = false, foundf2 = false, foundf3 = false;
-         for(TetFaceIterator tfit(this, curTet); !tfit.done(); tfit.advance()) {
+         for(TetFaceIterator tfit(*this, curTet); !tfit.done(); tfit.advance()) {
             FaceHandle curFace = tfit.current();
             if(curFace == f1) foundf1 = true;
             if(curFace == f2) foundf2 = true;
@@ -1147,7 +1147,7 @@ namespace SimplexMesh {
 
       //it's boundary if at least one of the tets is a boundary tet
       bool partOfAnyTets = false;
-      for(EdgeFaceIterator efit(this, eh); !efit.done(); efit.advance()) {
+      for(EdgeFaceIterator efit(*this, eh); !efit.done(); efit.advance()) {
          FaceHandle fh = efit.current();
          int tets = faceIncidentTetCount(fh);
          if(tets > 0)
@@ -1175,9 +1175,9 @@ namespace SimplexMesh {
       //3D
       //if it's part of a tet, it's on the boundary if there are any faces without 2 tets
       bool partOfAnyTets = false;
-      for(VertexEdgeIterator veit(this, vh); !veit.done(); veit.advance()) {
+      for(VertexEdgeIterator veit(*this, vh); !veit.done(); veit.advance()) {
          EdgeHandle eh = veit.current();
-         for(EdgeFaceIterator efit(this, eh); !efit.done(); efit.advance()) {
+         for(EdgeFaceIterator efit(*this, eh); !efit.done(); efit.advance()) {
             FaceHandle fh = efit.current();
             int tets = faceIncidentTetCount(fh);
             if(tets > 0)
@@ -1194,7 +1194,7 @@ namespace SimplexMesh {
       //2D
       //if it's part of a face, it's on the boundary if, the faces don't form a closed loop
       bool partOfAnyFace = false;
-      for(VertexEdgeIterator veit(this, vh); !veit.done(); veit.advance()) {
+      for(VertexEdgeIterator veit(*this, vh); !veit.done(); veit.advance()) {
          EdgeHandle eh = veit.current();
          int faces = edgeIncidentFaceCount(eh);
          if(faces > 0)
@@ -1231,7 +1231,7 @@ namespace SimplexMesh {
       FaceHandle boundaryFace;
       std::set<FaceHandle> faceSet;
 
-      for(EdgeFaceIterator efit(this, eh); !efit.done(); efit.advance()) {
+      for(EdgeFaceIterator efit(*this, eh); !efit.done(); efit.advance()) {
          FaceHandle fh = efit.current();
          faceSet.insert(fh);
 
@@ -1272,14 +1272,14 @@ namespace SimplexMesh {
             do {
                
                //Get the next tet connected to this face.
-               FaceTetIterator ftit(this, prevFace);
+               FaceTetIterator ftit(*this, prevFace);
                while(ftit.current() == prevTet && !ftit.done())
                   ftit.advance();
                if(ftit.done()) break; //ran out of tets, dead end
 
                //find the next face of the tet that is part of the faceSet (and is not the preceding one)
                TetHandle curTet = ftit.current(); 
-               TetFaceIterator tfit(this, curTet);
+               TetFaceIterator tfit(*this, curTet);
                while(!tfit.done() && (tfit.current() == prevFace || faceSet.find(tfit.current()) == faceSet.end()))
                   tfit.advance();
 
@@ -1313,7 +1313,7 @@ namespace SimplexMesh {
       bool freeFace = false;
       bool freeEdge = false;
       std::set<FaceHandle> boundaryFaces;
-      for(VertexEdgeIterator veit(this, vh); !veit.done(); veit.advance()) {
+      for(VertexEdgeIterator veit(*this, vh); !veit.done(); veit.advance()) {
          EdgeHandle eh = veit.current();
 
          //check for solo edges
@@ -1321,7 +1321,7 @@ namespace SimplexMesh {
             freeEdge = true;
          }
 
-         for(EdgeFaceIterator efit(this, eh); !efit.done(); efit.advance()) { //this will visit some faces multiple times, no biggie.
+         for(EdgeFaceIterator efit(*this, eh); !efit.done(); efit.advance()) { //this will visit some faces multiple times, no biggie.
             FaceHandle fh = efit.current();
             int tets = faceIncidentTetCount(fh);
             if(tets > 0) { //we have encountered at least one tet, so we know we're in 3D mode.
@@ -1344,9 +1344,9 @@ namespace SimplexMesh {
 
             //collect all the faces, and boundaryfaces.
             std::set<FaceHandle> faceSet;
-            for(VertexEdgeIterator veit(this, vh); !veit.done(); veit.advance()) {
+            for(VertexEdgeIterator veit(*this, vh); !veit.done(); veit.advance()) {
                EdgeHandle eh = veit.current();
-               for(EdgeFaceIterator efit(this, eh); !efit.done(); efit.advance()) {
+               for(EdgeFaceIterator efit(*this, eh); !efit.done(); efit.advance()) {
                   FaceHandle fh = efit.current();
                   faceSet.insert(fh);
                   if(faceIncidentTetCount(fh) == 1) {
@@ -1366,9 +1366,9 @@ namespace SimplexMesh {
                unvisitedFaces.erase(curFace);
 
                //look at all neighbouring faces for unvisited ones
-               for(FaceTetIterator ftit(this, curFace); !ftit.done(); ftit.advance()) {
+               for(FaceTetIterator ftit(*this, curFace); !ftit.done(); ftit.advance()) {
                   TetHandle curTet = ftit.current();
-                     for(TetFaceIterator tfit(this, curTet); !tfit.done(); tfit.advance()) {
+                     for(TetFaceIterator tfit(*this, curTet); !tfit.done(); tfit.advance()) {
                         FaceHandle nbrFace = tfit.current();
                      if(faceSet.find(nbrFace) == faceSet.end() || nbrFace == curFace) continue; //skip irrelevant faces
                      
@@ -1393,7 +1393,7 @@ namespace SimplexMesh {
                FaceHandle prevFace =  startFace;
                do {
                   //get the next edge that is connected to our relevant vertex
-                  FaceEdgeIterator feit(this, prevFace, false);
+                  FaceEdgeIterator feit(*this, prevFace, false);
                   while((feit.current() == prevEdge_ || !isIncident(vh, feit.current())) && !feit.done() )
                      feit.advance();
 
@@ -1401,7 +1401,7 @@ namespace SimplexMesh {
 
                   //count how many boundary faces this edge is connected to. if more than 2, we're in non-manifold scenario
                   int boundaryFaceCount = 0;
-                  for(EdgeFaceIterator efit(this, curEdge); !efit.done(); efit.advance()) {
+                  for(EdgeFaceIterator efit(*this, curEdge); !efit.done(); efit.advance()) {
                      if(boundaryFaces.find(efit.current()) != boundaryFaces.end())
                         ++boundaryFaceCount;
                   }
@@ -1411,7 +1411,7 @@ namespace SimplexMesh {
                   assert(boundaryFaceCount == 2);
 
                   //find the next face that is part of the faceSet, but is not the preceding one
-                  EdgeFaceIterator efit(this, curEdge);
+                  EdgeFaceIterator efit(*this, curEdge);
                   while(!efit.done() && (efit.current() == prevFace || boundaryFaces.find(efit.current()) == boundaryFaces.end()))
                      efit.advance();
 
@@ -1436,7 +1436,7 @@ namespace SimplexMesh {
       bool partOfAnyFaces = false;
       std::set<EdgeHandle> edgeSet;
       EdgeHandle boundaryEdge;
-      for(VertexEdgeIterator veit(this, vh); !veit.done(); veit.advance()) {
+      for(VertexEdgeIterator veit(*this, vh); !veit.done(); veit.advance()) {
          EdgeHandle eh = veit.current();
          edgeSet.insert(eh);
 
@@ -1467,13 +1467,13 @@ namespace SimplexMesh {
          EdgeHandle prevEdge_ = startEdge;
          FaceHandle prevFace =  FaceHandle::invalid();
          do {
-            EdgeFaceIterator efit(this, prevEdge_);
+            EdgeFaceIterator efit(*this, prevEdge_);
             while(efit.current() == prevFace && !efit.done())
                efit.advance();
             if(efit.done()) break; //ran out of faces, dead end
 
             FaceHandle curFace = efit.current(); //find the next edge that is part of the edgeSet, but not the preceding one
-            FaceEdgeIterator feit(this, curFace, false);
+            FaceEdgeIterator feit(*this, curFace, false);
             while(!feit.done() && (feit.current() == prevEdge_ || edgeSet.find(feit.current()) == edgeSet.end()))
                feit.advance();
             

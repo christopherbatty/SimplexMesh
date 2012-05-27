@@ -10,7 +10,7 @@ class SimplexPropertyBase {
 
 public:
 
-  SimplexPropertyBase(SimplicialComplex* obj) : m_obj(obj) {}
+  SimplexPropertyBase(SimplicialComplex& obj) : m_obj(obj) {}
   virtual ~SimplexPropertyBase() {}
 
 protected:
@@ -21,7 +21,7 @@ protected:
   virtual void resize(size_t n) = 0;
 
   //The simplex mesh this property is associated with.
-  SimplicialComplex* m_obj;
+  SimplicialComplex& m_obj;
 
   friend class SimplicialComplex;
 };
@@ -33,7 +33,7 @@ template <class T>
 class SimplexProperty : public SimplexPropertyBase {
 
 public:
-  SimplexProperty(SimplicialComplex* obj, size_t n) : SimplexPropertyBase(obj), m_data(n) {}
+  SimplexProperty(SimplicialComplex& obj, size_t n) : SimplexPropertyBase(obj), m_data(n) {}
 
   virtual ~SimplexProperty() {}
 
@@ -55,28 +55,28 @@ class VertexProperty : public SimplexProperty<T> {
 
 public:
 
-  VertexProperty(SimplicialComplex* obj) : SimplexProperty<T>(obj,obj->numVertexSlots()) {
-    this->m_obj->registerVertexProperty(this);
+  VertexProperty(SimplicialComplex& obj) : SimplexProperty<T>(obj,obj.numVertexSlots()) {
+    m_obj.registerVertexProperty(this);
   }
 
   explicit VertexProperty(const VertexProperty& prop) : SimplexProperty<T>(prop.m_obj,prop.m_obj->numVertexSlots()) {
-    this->m_obj->registerVertexProperty(this);
+    this->m_obj.registerVertexProperty(this);
     this->m_data = prop.m_data;
   }
 
   ~VertexProperty() {
-    this->m_obj->removeVertexProperty(this);
+    this->m_obj.removeVertexProperty(this);
   }
 
   VertexProperty& operator=(const VertexProperty& other) {
 
     if(this != &other) {
-        this->m_obj->removeVertexProperty(this);
+        this->m_obj.removeVertexProperty(this);
 
         this->m_obj = other.m_obj;
         this->m_data = other.m_data;
 
-        this->m_obj->registerVertexProperty(this);
+        this->m_obj.registerVertexProperty(this);
     }
 
     return *this;
@@ -99,28 +99,28 @@ template <class T>
 class EdgeProperty : public SimplexProperty<T> {
 public:
   
-  EdgeProperty(SimplicialComplex* obj) : SimplexProperty<T>(obj,obj->numEdgeSlots()) {
-    this->m_obj->registerEdgeProperty(this);
+  EdgeProperty(SimplicialComplex& obj) : SimplexProperty<T>(obj,obj.numEdgeSlots()) {
+    m_obj.registerEdgeProperty(this);
   }
 
-  explicit EdgeProperty(const EdgeProperty& prop) : SimplexProperty<T>(prop.m_obj,prop.m_obj->numEdgeSlots()) {
-    this->m_obj->registerEdgeProperty(this);
-    this->m_data = prop.m_data;
+  explicit EdgeProperty(const EdgeProperty& prop) : SimplexProperty<T>(prop.m_obj,prop.m_obj.numEdgeSlots()) {
+    m_obj.registerEdgeProperty(this);
+    m_data = prop.m_data;
   }
 
   ~EdgeProperty() {
-    this->m_obj->removeEdgeProperty(this);
+    this->m_obj.removeEdgeProperty(this);
   }
 
   EdgeProperty& operator=(const EdgeProperty& other) {
 
     if(this != &other) {
-      this->m_obj->removeEdgeProperty(this);
+      m_obj.removeEdgeProperty(this);
 
       this->m_obj = other.m_obj;
       this->m_data = other.m_data;
 
-      this->m_obj->registerEdgeProperty(this);
+      m_obj.registerEdgeProperty(this);
     }
 
     return *this;
@@ -141,28 +141,28 @@ public:
 template <class T>
 class FaceProperty : public SimplexProperty<T> {
 public:
-  FaceProperty(SimplicialComplex* obj) : SimplexProperty<T>(obj,obj->numFaceSlots()) {
-    this->m_obj->registerFaceProperty(this);
+  FaceProperty(SimplicialComplex& obj) : SimplexProperty<T>(obj,obj.numFaceSlots()) {
+    m_obj.registerFaceProperty(this);
   }
 
-  explicit FaceProperty(const FaceProperty& prop) : SimplexProperty<T>(prop.m_obj,prop.m_obj->numFaceSlots()) {
-    this->m_obj->registerFaceProperty(this);
-    this->m_data = prop.m_data;
+  explicit FaceProperty(const FaceProperty& prop) : SimplexProperty<T>(prop.m_obj,prop.m_obj.numFaceSlots()) {
+    m_obj.registerFaceProperty(this);
+    m_data = prop.m_data;
   }
 
   ~FaceProperty() {
-    this->m_obj->removeFaceProperty(this);
+    m_obj.removeFaceProperty(this);
   }
 
   FaceProperty& operator=(const FaceProperty& other) {
 
     if(this != &other) {
-      this->m_obj->removeFaceProperty(this);
+      m_obj.removeFaceProperty(this);
 
       this->m_obj = other.m_obj;
       this->m_data = other.m_data;
 
-      this->m_obj->registerFaceProperty(this);
+      m_obj.registerFaceProperty(this);
     }
 
     return *this;
@@ -184,28 +184,28 @@ public:
 template <class T>
 class TetProperty : public SimplexProperty<T> {
 public:
-  TetProperty(SimplicialComplex* obj) : SimplexProperty<T>(obj, obj->numTetSlots()) {
-    this->m_obj->registerTetProperty(this);
+  TetProperty(SimplicialComplex& obj) : SimplexProperty<T>(obj, obj.numTetSlots()) {
+    m_obj.registerTetProperty(this);
   }
 
-  explicit TetProperty(const TetProperty& prop) : SimplexProperty<T>(prop.m_obj,prop.m_obj->numTetSlots()) {
-    this->m_obj->registerTetProperty(this);
-    this->m_data = prop.m_data;
+  explicit TetProperty(const TetProperty& prop) : SimplexProperty<T>(prop.m_obj,prop.m_obj.numTetSlots()) {
+    m_obj->registerTetProperty(this);
+    m_data = prop.m_data;
   }
 
   ~TetProperty() {
-    this->m_obj->removeTetProperty(this);
+    m_obj.removeTetProperty(this);
   }
 
   TetProperty& operator=(const TetProperty& other) {
 
     if(this != &other) {
-      this->m_obj->removeTetProperty(this);
+      m_obj.removeTetProperty(this);
 
       this->m_obj = other.m_obj;
       this->m_data = other.m_data;
 
-      this->m_obj->registerTetProperty(this);
+      m_obj.registerTetProperty(this);
     }
 
     return *this;
