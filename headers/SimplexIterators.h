@@ -86,7 +86,7 @@ private:
 
 class EdgeVertexIterator {
 public:
-   EdgeVertexIterator(const SimplicialComplex& obj, const EdgeHandle& eh, bool ordered);
+   EdgeVertexIterator(const SimplicialComplex& obj, const EdgeHandle& eh, bool ordered = false);
    void advance();
    bool done() const;
    VertexHandle current() const;
@@ -115,7 +115,7 @@ private:
 
 class FaceEdgeIterator {
 public:
-   FaceEdgeIterator(const SimplicialComplex& obj, const FaceHandle& eh, bool ordered);
+   FaceEdgeIterator(const SimplicialComplex& obj, const FaceHandle& eh, bool ordered = false);
    void advance();
    bool done() const;
    EdgeHandle current() const;
@@ -178,7 +178,7 @@ private:
 
 class FaceVertexIterator {
 public:
-   FaceVertexIterator(const SimplicialComplex& obj, const FaceHandle& fh, bool ordered);
+   FaceVertexIterator(const SimplicialComplex& obj, const FaceHandle& fh, bool ordered = false);
    void advance();
    bool done() const;
    VertexHandle current() const;

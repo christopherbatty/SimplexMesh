@@ -55,7 +55,7 @@ namespace SimplexMesh {
       EdgeHandle getEdge(const FaceHandle& fh, int index) const;
       FaceHandle getFace(const TetHandle& th, int index) const; //Is there an important/inherent ordering here? should we unique-ify by sorting?
 
-      //Get functions - grab a simplex by its constitutive simplices - slow!
+      //Get functions - grab a simplex by its constitutive simplices - slower!
       EdgeHandle getEdge(const VertexHandle& v0, const VertexHandle& v1) const;
       FaceHandle getFace(const EdgeHandle& e0, const EdgeHandle& e1, const EdgeHandle& e2) const;
       TetHandle getTet(const FaceHandle& f0, const FaceHandle& f1, const FaceHandle& f2, const FaceHandle& f3) const;
@@ -141,10 +141,23 @@ namespace SimplexMesh {
       TetHandle nextTet(const FaceHandle& face, const TetHandle& curTet) const;
       TetHandle prevTet(const FaceHandle& face, const TetHandle& curTet) const;
 
+      //Common connectivity editing operations
+      //---------------------------------
+
+      VertexHandle collapseEdge(const EdgeHandle& eh, const VertexHandle& vertToRemove);
+
+      //Split an edge and insert a new vertex in between, subdividing all the faces sharing the edge.
+      //Should be non-manifold friendly. Orientation is maintained.
+      VertexHandle splitEdge(const EdgeHandle& h, std::vector<FaceHandle>& newFaces);
+
+      //Takes an edge with two adjacent faces comprising a quad, and replaces the edge with the other diagonal of the quad.
+      //Not defined in the non-manifold edge case. Orientation maintained if original face orientations matched.
+      EdgeHandle flipEdge(const EdgeHandle& h);
+
       //--------------------------------
    private:
 
-      VertexHandle collapseEdge(const EdgeHandle& eh, const VertexHandle& vertToRemove);
+      
 
       //Friendship relations
       //////////////////////////////////////////////////////////////////////////

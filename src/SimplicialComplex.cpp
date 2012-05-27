@@ -1025,7 +1025,7 @@ namespace SimplexMesh {
       //now we have some edges that are duplicates, possibly pointing in opposite directions
       //identify duplicate edges for deletion.
       std::vector< std::pair<int,int> > duplicateEdges; //list of (edge,edge) pairs that are duplicates
-      std::map<int,int> vertEdgeMap;//for each vertex in the set of nbrs, the first edge we hit that uses it.
+      std::map<int,int> vertEdgeMap;//for each vertex in the set of neighbours, the first edge we hit that uses it.
       for(unsigned int e = 0; e < m_VE.getNumEntriesInRow(vertToKeep); ++e) {
          int edgeInd = m_VE.getColByIndex(vertToKeep,e);
          int fromV = fromVertex(EdgeHandle(edgeInd)).idx();
@@ -1086,6 +1086,189 @@ namespace SimplexMesh {
       return VertexHandle(vertToKeep);
    }
 
+   //Two silly utility functions
+   VertexHandle getSharedVertexFromEdgePair(const SimplicialComplex& obj, const EdgeHandle& e0, const EdgeHandle& e1) {
+      VertexHandle v0 = obj.fromVertex(e0), v1 = obj.toVertex(e0),
+         v2 = obj.fromVertex(e1), v3 = obj.toVertex(e1);
+
+      if(v0 == v2 || v0 == v3) return v0;
+      else if(v1 == v2 || v1 == v3) return v1;
+      else return VertexHandle::invalid();
+   }
+
+   EdgeHandle getEdgeFromVertexPair( const SimplicialComplex& obj, const VertexHandle& v0, const VertexHandle& v1 ) {
+      for(VertexEdgeIterator ve_it(obj, v0); !ve_it.done(); ve_it.advance()) {
+         EdgeHandle eh = ve_it.current();
+         if(obj.fromVertex(eh) == v1 || obj.toVertex(eh) == v1)
+            return eh;
+      }
+      return EdgeHandle::invalid();
+   }
+
+   VertexHandle SimplicialComplex::splitEdge(const EdgeHandle& splitEdge, std::vector<FaceHandle>& newFaces) {
+
+      EdgeFaceIterator ef_iter(*this, splitEdge);
+
+      newFaces.clear();
+
+      //get the edge's vertices
+      VertexHandle from_vh, to_vh;
+      from_vh = fromVertex(splitEdge);
+      to_vh = toVertex(splitEdge);
+
+      //add a new midpoint vertex
+      VertexHandle newVert = addVertex();
+
+      //add the two new edges that are part of the original split edge
+      EdgeHandle e_0 = addEdge(from_vh, newVert);
+      EdgeHandle e_1 = addEdge(to_vh, newVert);
+
+      //now iterate over the existing faces, splitting them in two appropriately
+      std::vector<FaceHandle> facesToDelete;
+      EdgeFaceIterator ef_it(*this, splitEdge);
+      for(;!ef_it.done(); ef_it.advance()) {
+         FaceHandle fh = ef_it.current();
+
+         //store this for deletion later.
+         facesToDelete.push_back(fh);
+
+         //find the other vertex in the first face
+         FaceVertexIterator fv_it(*this, fh);
+         while((fv_it.current() == from_vh) || (fv_it.current() == to_vh)) fv_it.advance();
+         VertexHandle other_vh = fv_it.current();
+
+         //create the new edge that splits this face
+         EdgeHandle e_faceSplit = addEdge(other_vh, newVert);
+
+         //build the two new faces
+         FaceEdgeIterator fe_it(*this, fh);
+         for(;!fe_it.done(); fe_it.advance()) {
+            EdgeHandle cur = fe_it.current();
+
+            //for each edge that isn't the splitEdge...      
+            if(cur == splitEdge) continue;
+
+            //accumulate a list of the new edges for the associated new face.
+            //it is done in this manner to ensure new orientation is consistent with the old
+            std::vector<EdgeHandle> edgeList;
+
+            //determine which half of the splitEdge to use for this new face
+            EdgeHandle halfEdge = fromVertex(cur) == from_vh || toVertex(cur) == from_vh? e_0 : e_1;
+
+            FaceEdgeIterator fe_it2(*this, fh);
+            for(;!fe_it2.done(); fe_it2.advance()) {
+               EdgeHandle cur2 = fe_it2.current();
+               if(cur2 == cur) edgeList.push_back(cur); //the current edge
+               else if(cur2 == splitEdge) edgeList.push_back(halfEdge); //half of the original split edge
+               else edgeList.push_back(e_faceSplit); //the new edge that splits the face
+            }
+            FaceHandle newFace = addFace(edgeList[0], edgeList[1], edgeList[2]);
+            newFaces.push_back(newFace);
+         }
+
+      }
+
+      //Delete the previous faces and edge. Done as a post-process so as not to mess up the iterators.
+      for(unsigned int i = 0; i < facesToDelete.size(); ++i)
+         deleteFace(facesToDelete[i], false);
+      deleteEdge(splitEdge, false);
+
+      //Return a handle to the vertex we created
+      return newVert;
+   }
+
+   EdgeHandle SimplicialComplex::flipEdge(const EdgeHandle& eh) {
+      assert(edgeExists(eh));
+
+      VertexHandle from_vh, to_vh;
+      from_vh = fromVertex(eh);
+      to_vh = toVertex(eh);
+
+      assert(from_vh != to_vh);
+
+      //Just use the first two faces we hit.
+      EdgeFaceIterator ef_it(*this, eh);
+      if(ef_it.done()) return EdgeHandle::invalid(); //if there is no face at all, can't flip
+      const FaceHandle fh = ef_it.current();
+      ef_it.advance();
+      if(ef_it.done()) return EdgeHandle::invalid(); //there is no 2nd face, we also can't flip
+      const FaceHandle fh2 = ef_it.current();
+      ef_it.advance();
+      assert(fh != fh2); //we should never hit the same face
+      assert(ef_it.done()); //this edge should have no more faces. A non-manifold edge flip doesn't make sense.
+
+      //find the 3rd vertex in the first face
+      FaceVertexIterator fv_it(*this, fh);
+      while((fv_it.current() == from_vh) || (fv_it.current() == to_vh)) fv_it.advance();
+      VertexHandle f1_vh = fv_it.current();
+
+      //find the 3rd vertex in the second face
+      FaceVertexIterator fv_it2(*this, fh2);
+      while((fv_it2.current() == from_vh) || (fv_it2.current() == to_vh)) fv_it2.advance();
+      VertexHandle f2_vh = fv_it2.current();
+
+      assert(f1_vh != f2_vh);
+
+      assert(from_vh != f1_vh);
+      assert(from_vh != f2_vh);
+      assert(to_vh != f1_vh);
+      assert(to_vh != f2_vh);
+
+      //check for an edge already matching this description... and don't do the flip.
+      EdgeHandle edge = getEdgeFromVertexPair(*this, f1_vh, f2_vh);
+      if(edge.isValid()) return EdgeHandle::invalid();
+
+      EdgeHandle newEdge = addEdge(f1_vh, f2_vh);
+
+      //grab all the current edges in proper order, starting from the shared face
+      EdgeHandle e0 = nextEdge(fh, eh);
+      EdgeHandle e1 = nextEdge(fh, e0);
+
+      EdgeHandle e2 = nextEdge(fh2, eh);
+      EdgeHandle e3 = nextEdge(fh2, e2);
+
+      assert(e0 != e1);
+      assert(e0 != e2);
+      assert(e0 != e3);
+      assert(e0 != eh);
+      assert(e0 != newEdge);
+
+      assert(e1 != e2);
+      assert(e1 != e3);
+      assert(e1 != eh);
+      assert(e1 != newEdge);
+
+      assert(e2 != e3);
+      assert(e2 != eh);
+      assert(e2 != newEdge);
+
+      assert(e3 != eh);
+      assert(e3 != newEdge);
+
+      assert(eh != newEdge);
+
+      //flip the edges of the second face so it matches the first face 
+      //(if the original faces didn't sync, it doesn't matter, since there's no way to flip and maintain consistency)
+      VertexHandle sharedV = getSharedVertexFromEdgePair(*this, e1, e2);
+      if(!sharedV.isValid())
+         std::swap(e2,e3);
+
+      //add in the new faces
+      addFace(e1, e2, newEdge);
+      addFace(e3, e0, newEdge);
+
+      //Delete the old patch
+      bool success = deleteFace(fh, false);
+      assert(success);
+      success = deleteFace(fh2, false);
+      assert(success);
+      success = deleteEdge(eh, false);
+      assert(success);
+
+      return newEdge;
+   }
+
+   
    
    void SimplicialComplex::registerVertexProperty(SimplexPropertyBase* prop) { 
       m_vertProperties.push_back(prop); 
@@ -1493,6 +1676,8 @@ namespace SimplexMesh {
       int numEdges = vertexIncidentEdgeCount(vh);
       return numEdges < 3;
    }
+
+
 
 
 } //namespace SimplexMesh
