@@ -1,4 +1,4 @@
-The goal of this project is to design a general non-manifold, non-regular simplicial mesh data structure and library for representing simplicial complexes up to 3D (verts, edges, faces, tets) and associated data stored on the simplices. 
+The goal is to construct a general non-manifold, non-regular simplicial mesh data structure and library for representing simplicial complexes up to 3D (verts, edges, faces, tets) and associated data stored on the simplices. 
 (This essentially means a mesh that mixes and matches regions of solo vertices, segments, triangles and tetrahedra, rather than requiring restrictions, e.g. only triangles, embedded in 3D, with no non-manifold edges.)
 Priority is given to simplicity and usability over speed, hence the choice (for now at least) of using a representation based loosely on sparse incidence matrices. Our goal is to facilitate research in non-manifold mesh processing and simulation.
 
