@@ -1,0 +1,3 @@
+This code was initially developed primarily by Christopher Batty during a postdoc under Eitan Grinspun in Columbia University's Computer Graphics Group (C2G2), supported by a Banting Postdoctoral Fellowship. The C2G2 lab itself is supported in part by the Sloan Foundation, the NSF (grants CMMI-11-29917, IIS-11-17257, IIS-10-48948, IIS-09-16129, CCF-06-43268), and generous gifts from Adobe, Autodesk, Intel, mental images, NVIDIA, Side Effects Software, and The Walt Disney Company.
+
+Thanks are also due to other members of the lab for helpful discussions and suggestions, including Andres Uribe, Fang Da, Danny Kaufman, and Breannan Smith.
