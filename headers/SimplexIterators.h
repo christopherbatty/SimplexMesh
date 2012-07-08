@@ -99,6 +99,20 @@ private:
 
 };
 
+class VertexVertexIterator {
+public:
+    VertexVertexIterator(const SimplicialComplex& obj, const VertexHandle& vh);
+    void advance();
+    bool done() const;
+    VertexHandle current() const;
+
+private:
+    int m_idx;
+    VertexHandle m_vh;
+    const SimplicialComplex& m_obj;
+
+};
+
 class EdgeFaceIterator {
 public:
    EdgeFaceIterator(const SimplicialComplex& obj, const EdgeHandle& eh);

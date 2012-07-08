@@ -132,6 +132,29 @@ VertexHandle EdgeVertexIterator::current() const {
 }
 
 
+//VertexVertexIterator
+VertexVertexIterator::VertexVertexIterator(const SimplicialComplex& obj, const VertexHandle& vh): m_obj(obj), m_idx(0), m_vh(vh) {
+}
+
+void VertexVertexIterator::advance() {
+    m_idx++;
+}
+
+bool VertexVertexIterator::done() const {
+    return m_idx >= (int)m_obj.vertexIncidentEdgeCount(m_vh);
+}
+
+VertexHandle VertexVertexIterator::current() const {
+    if(m_idx >= (int)m_obj.vertexIncidentEdgeCount(m_vh))
+        return VertexHandle::invalid();
+
+    unsigned int edgeID = m_obj.m_VE.getColByIndex(m_vh.idx(), m_idx);
+    unsigned int vertID = m_obj.m_EV.getColByIndex(edgeID, 0);
+    if(vertID == m_vh.idx())
+        vertID = m_obj.m_EV.getColByIndex(edgeID, 1);
+    return VertexHandle(vertID);
+}
+
 //EdgeFaceIterator
 EdgeFaceIterator::EdgeFaceIterator(const SimplicialComplex& obj, const EdgeHandle& eh): m_obj(obj), m_idx(0), m_eh(eh) {
 }

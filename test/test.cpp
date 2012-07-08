@@ -11,17 +11,19 @@ bool test_faceDuplication();
 bool test_faceCreationValid();
 bool test_tetDuplication();
 bool test_tetCreationValid();
+bool test_vertexVertexIterator();
 
 typedef bool (*test_func)();
 
-const int test_count = 7;
+const int test_count = 8;
 test_func tests[] = {test_constructSimplicesFromVerts,
                      test_constructTetAndIterateSimplices,
                      test_edgeDuplication,
                      test_faceDuplication,
                      test_faceCreationValid,
                      test_tetDuplication,
-                     test_tetCreationValid};
+                     test_tetCreationValid,
+                     test_vertexVertexIterator};
 
 
 void main() {
@@ -237,4 +239,48 @@ bool test_tetCreationValid() {
    TetHandle t2 = mesh.addTet(f0,f1,f3,f4);
 
    return t0.isValid() && !t1.isValid() && !t2.isValid();
+}
+
+bool test_vertexVertexIterator() {
+    SimplicialComplex mesh;
+
+    mesh.setSafeMode(true);
+
+    VertexHandle v0 = mesh.addVertex();
+    VertexHandle v1 = mesh.addVertex();
+    VertexHandle v2 = mesh.addVertex();
+    VertexHandle v3 = mesh.addVertex();
+    VertexHandle v4 = mesh.addVertex();
+
+    FaceHandle f0 = mesh.addFace(v0,v1,v2);
+    FaceHandle f1 = mesh.addFace(v0,v2,v3);
+    FaceHandle f2 = mesh.addFace(v0,v1,v3);
+    FaceHandle f3 = mesh.addFace(v1,v2,v3);
+    FaceHandle f4 = mesh.addFace(v0,v2,v4);
+
+    int count = 0;
+    for(VertexVertexIterator vit(mesh, v0); !vit.done(); vit.advance()) {
+        VertexHandle vh = vit.current();
+        ++count;
+    }
+    if(count != 4) 
+        return false;
+
+    count = 0;
+    for(VertexVertexIterator vit(mesh, v4); !vit.done(); vit.advance()) {
+        VertexHandle vh = vit.current();
+        ++count;
+    }
+    if(count != 2) 
+        return false;
+
+    count = 0;
+    for(VertexVertexIterator vit(mesh, v3); !vit.done(); vit.advance()) {
+        VertexHandle vh = vit.current();
+        ++count;
+    }
+    if(count != 3) 
+        return false;
+    
+    return true;
 }

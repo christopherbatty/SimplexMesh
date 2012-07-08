@@ -167,7 +167,7 @@ namespace SimplexMesh {
       friend class FaceIterator; friend class TetIterator;
 
       //Neighbour iterators
-      friend class VertexEdgeIterator; friend class EdgeVertexIterator;
+      friend class VertexEdgeIterator; friend class EdgeVertexIterator; friend class VertexVertexIterator;
       friend class EdgeFaceIterator; friend class FaceEdgeIterator;
       friend class FaceTetIterator; friend class TetFaceIterator;
 
