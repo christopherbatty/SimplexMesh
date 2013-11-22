@@ -860,7 +860,7 @@ namespace SimplexMesh {
    }
 
    VertexHandle SimplicialComplex::prevVertex(const EdgeHandle& edge, const VertexHandle& curVert) const {
-      return prevVertex(edge, curVert);
+      return nextVertex(edge, curVert);
    }
 
    
