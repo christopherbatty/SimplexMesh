@@ -904,7 +904,7 @@ namespace SimplexMesh {
    FaceHandle SimplicialComplex::nextFace(const TetHandle& tet, const FaceHandle& curFace) const {
       assert(tetExists(tet));
       assert(faceExists(curFace));
-      assert(m_TF.getNumEntriesInRow(tet.idx()) == 3);
+      assert(m_TF.getNumEntriesInRow(tet.idx()) == 4);
       assert(isIncident(curFace, tet));
 
       int tetIdx = tet.idx();
@@ -912,18 +912,18 @@ namespace SimplexMesh {
       //find the current face
       int colIdx = 0;
       for(; colIdx < 4; ++colIdx) {
-         if(curFace.idx() == (int)m_FE.getColByIndex(tetIdx, colIdx)) {
+         if(curFace.idx() == (int)m_TF.getColByIndex(tetIdx, colIdx)) {
             break;
          }
       }
       int nextIdx = (colIdx+1)%4;
-      return FaceHandle(m_FE.getColByIndex(tetIdx, nextIdx));
+      return FaceHandle(m_TF.getColByIndex(tetIdx, nextIdx));
    }
 
    FaceHandle SimplicialComplex::prevFace(const TetHandle& tet, const FaceHandle& curFace) const {
       assert(tetExists(tet));
       assert(faceExists(curFace));
-      assert(m_TF.getNumEntriesInRow(tet.idx()) == 3);
+      assert(m_TF.getNumEntriesInRow(tet.idx()) == 4);
       assert(isIncident(curFace, tet));
 
       int tetIdx = tet.idx();
@@ -931,12 +931,12 @@ namespace SimplexMesh {
       //find the current face
       int colIdx = 0;
       for(; colIdx < 4; ++colIdx) {
-         if(curFace.idx() == (int)m_FE.getColByIndex(tetIdx, colIdx)) {
+         if(curFace.idx() == (int)m_TF.getColByIndex(tetIdx, colIdx)) {
             break;
          }
       }
       int nextIdx = (colIdx+3)%4;
-      return FaceHandle(m_FE.getColByIndex(tetIdx, nextIdx));
+      return FaceHandle(m_TF.getColByIndex(tetIdx, nextIdx));
    }
 
    //--------------------------------
